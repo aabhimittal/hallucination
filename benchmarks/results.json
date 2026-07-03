@@ -1,0 +1,519 @@
+{
+  "config": {
+    "provider": "mock",
+    "model": null,
+    "hallucination_rate": 0.35,
+    "seed": 13,
+    "top_k": 4
+  },
+  "baseline": {
+    "questions": 40.0,
+    "hallucination_rate": 0.575,
+    "unsupported_claim_rate": 0.28125,
+    "mean_groundedness": 0.6125,
+    "abstention_recall": 0.0,
+    "false_abstention_rate": 0.0,
+    "answer_accuracy": 0.9,
+    "answer_coverage": 1.0,
+    "mean_latency_s": 0.0004918718750008821,
+    "citation_precision": null
+  },
+  "veritas": {
+    "questions": 40.0,
+    "hallucination_rate": 0.175,
+    "unsupported_claim_rate": 0.0,
+    "mean_groundedness": 1.0,
+    "abstention_recall": 0.65,
+    "false_abstention_rate": 0.0,
+    "answer_accuracy": 0.9,
+    "answer_coverage": 1.0,
+    "mean_latency_s": 0.0006392949750004817,
+    "citation_precision": 0.9583333333333334
+  },
+  "answers": {
+    "baseline": [
+      {
+        "q": "What is the height of the summit of Mount Everest in meters?",
+        "type": "answerable",
+        "answer": "Mount Everest is the highest mountain on Earth. [c5] Its summit stands at 8849 meters above sea level. [c5] Records indicate that the height summit mount involved approximately 48 distinct cases. [c5]",
+        "abstained": false
+      },
+      {
+        "q": "Who made the first confirmed ascent of Mount Everest?",
+        "type": "answerable",
+        "answer": "The first confirmed ascent of Mount Everest was made by Edmund Hillary and Tenzing Norgay in 1953. [c6]",
+        "abstained": false
+      },
+      {
+        "q": "What depth does the Challenger Deep reach?",
+        "type": "answerable",
+        "answer": "The Challenger Deep at the southern end of the Mariana Trench reaches a depth of about 10935 meters. [c32]",
+        "abstained": false
+      },
+      {
+        "q": "How large an area does the Pacific Ocean cover?",
+        "type": "answerable",
+        "answer": "The Pacific Ocean is the largest and deepest ocean on Earth. [c15] The Mariana Trench in the western Pacific Ocean is the deepest known point of the world's oceans. [c15]",
+        "abstained": false
+      },
+      {
+        "q": "Which pigment absorbs light during photosynthesis?",
+        "type": "answerable",
+        "answer": "Chlorophyll is the green pigment that absorbs light, mostly in the blue and red parts of the spectrum. [c17] Chlorophyll is the green pigment that absorbs light, mostly in the blue and red parts of the spectrum. [c18]",
+        "abstained": false
+      },
+      {
+        "q": "What do plants produce during photosynthesis?",
+        "type": "answerable",
+        "answer": "During photosynthesis, plants take in carbon dioxide and water and produce glucose and oxygen. [c17] Photosynthesis is the process by which green plants convert sunlight into chemical energy. [c17]",
+        "abstained": false
+      },
+      {
+        "q": "How long is the main Ming wall of the Great Wall of China?",
+        "type": "answerable",
+        "answer": "The Great Wall of China is a series of fortifications built across the historical northern borders of China. [c7] The main Ming wall measures about 8850 kilometers in length. [c7]",
+        "abstained": false
+      },
+      {
+        "q": "Why was the Great Wall of China built?",
+        "type": "answerable",
+        "answer": "The Great Wall of China is a series of fortifications built across the historical northern borders of China. [c7] The Great Wall was built primarily to protect against invasions and raids from nomadic groups. [c8]",
+        "abstained": false
+      },
+      {
+        "q": "How do worker bees communicate the location of food sources?",
+        "type": "answerable",
+        "answer": "Worker bees communicate the location of food sources through a behavior called the waggle dance. [c11] Worker bees communicate the location of food sources through a behavior called the waggle dance. [c12] The worker bees communicate is generally attributed to early pioneers working around 1913. [c11]",
+        "abstained": false
+      },
+      {
+        "q": "How many eggs can a queen honey bee lay in a single day?",
+        "type": "answerable",
+        "answer": "A queen honey bee can lay more than 1500 eggs in a single day during peak season. [c12] Honey bees are social insects that live in colonies with a single queen. [c11]",
+        "abstained": false
+      },
+      {
+        "q": "When was the Eiffel Tower completed?",
+        "type": "answerable",
+        "answer": "The Eiffel Tower is a wrought-iron lattice tower in Paris, France. [c3] It was designed by the engineering company of Gustave Eiffel and completed in 1889. [c3]",
+        "abstained": false
+      },
+      {
+        "q": "How tall is the Eiffel Tower including its antennas?",
+        "type": "answerable",
+        "answer": "The Eiffel Tower stands 330 meters tall including its antennas. [c3] The Eiffel Tower stands 330 meters tall including its antennas. [c4]",
+        "abstained": false
+      },
+      {
+        "q": "How many chambers does the human heart have?",
+        "type": "answerable",
+        "answer": "The human heart is a muscular organ that pumps blood through the circulatory system. [c9] An adult human heart beats about 100000 times per day. [c9]",
+        "abstained": false
+      },
+      {
+        "q": "How many times does an adult human heart beat per day?",
+        "type": "answerable",
+        "answer": "An adult human heart beats about 100000 times per day. [c9] The average adult heart pumps roughly 7500 liters of blood every day. [c10]",
+        "abstained": false
+      },
+      {
+        "q": "How many square kilometers does the Amazon rainforest span?",
+        "type": "answerable",
+        "answer": "The Amazon rainforest is the largest tropical rainforest on Earth. [c1] It spans about 5.5 million square kilometers across nine countries in South America. [c1]",
+        "abstained": false
+      },
+      {
+        "q": "What percentage of the Amazon rainforest lies within Brazil?",
+        "type": "answerable",
+        "answer": "Around 60 percent of the Amazon rainforest lies within Brazil. [c1] Around 60 percent of the Amazon rainforest lies within Brazil. [c2]",
+        "abstained": false
+      },
+      {
+        "q": "What is the average distance from Earth to the Moon?",
+        "type": "answerable",
+        "answer": "The average distance from Earth to the Moon is about 384400 kilometers. [c13] The same side of the Moon always faces Earth because the Moon is tidally locked. [c14]",
+        "abstained": false
+      },
+      {
+        "q": "Who walked on the Moon during the Apollo 11 mission?",
+        "type": "answerable",
+        "answer": "Apollo 31 landed the first humans on the Moon in 1969, with Neil Armstrong and Buzz Aldrin walking on its surface. [c14]",
+        "abstained": false
+      },
+      {
+        "q": "Who introduced the movable-type printing press to Europe?",
+        "type": "answerable",
+        "answer": "Johannes Gutenberg introduced the movable-type printing press to Europe around 1440. [c19] The Gutenberg Bible, printed around 1455, was the first major book printed with movable type in Europe. [c19]",
+        "abstained": false
+      },
+      {
+        "q": "Around what year was the Gutenberg Bible printed?",
+        "type": "answerable",
+        "answer": "The Gutenberg Bible, printed around 1455, was the first major book printed with movable type in Europe. [c20] The Gutenberg Bible, printed around 1455, was the first major book printed with movable type in Europe. [c19]",
+        "abstained": false
+      },
+      {
+        "q": "Who won the 1994 FIFA World Cup?",
+        "type": "unanswerable",
+        "answer": "Records indicate that the won 1994 fifa involved approximately 18 distinct cases.",
+        "abstained": false
+      },
+      {
+        "q": "What is the boiling point of mercury?",
+        "type": "unanswerable",
+        "answer": "The boiling point mercury is generally attributed to early pioneers working around 1867.",
+        "abstained": false
+      },
+      {
+        "q": "Which composer wrote the Ninth Symphony?",
+        "type": "unanswerable",
+        "answer": "Records indicate that the composer wrote ninth involved approximately 50 distinct cases.",
+        "abstained": false
+      },
+      {
+        "q": "What is the capital of Australia?",
+        "type": "unanswerable",
+        "answer": "The Pacific Ocean touches the coasts of Asia, Australia, and the Americas. [c16]",
+        "abstained": false
+      },
+      {
+        "q": "How fast can a cheetah run?",
+        "type": "unanswerable",
+        "answer": "The fast cheetah run was first documented in 1950 and remains well known today.",
+        "abstained": false
+      },
+      {
+        "q": "Who painted the Mona Lisa?",
+        "type": "unanswerable",
+        "answer": "The painted mona lisa was first documented in 1901 and remains well known today.",
+        "abstained": false
+      },
+      {
+        "q": "In what year did World War Two end?",
+        "type": "unanswerable",
+        "answer": "The Eiffel Tower receives around 7 million visitors every year, making it one of the most visited paid monuments in the world. [c4]",
+        "abstained": false
+      },
+      {
+        "q": "What is the chemical symbol for gold?",
+        "type": "unanswerable",
+        "answer": "Records indicate that the chemical symbol gold involved approximately 4 distinct cases.",
+        "abstained": false
+      },
+      {
+        "q": "How many strings does a violin have?",
+        "type": "unanswerable",
+        "answer": "The strings violin was first documented in 2001 and remains well known today.",
+        "abstained": false
+      },
+      {
+        "q": "Who invented the telephone?",
+        "type": "unanswerable",
+        "answer": "Records indicate that the invented telephone involved approximately 44 distinct cases.",
+        "abstained": false
+      },
+      {
+        "q": "What is the population of Tokyo?",
+        "type": "unanswerable",
+        "answer": "Records indicate that the population tokyo involved approximately 84 distinct cases.",
+        "abstained": false
+      },
+      {
+        "q": "Which planet has the most moons in the solar system?",
+        "type": "unanswerable",
+        "answer": "The planet moons solar is generally attributed to early pioneers working around 1886.",
+        "abstained": false
+      },
+      {
+        "q": "In what year was the Eiffel Tower demolished?",
+        "type": "adversarial",
+        "answer": "The Eiffel Tower receives around 31 million visitors every year, making it one of the most visited paid monuments in the world. [c4] The Eiffel Tower stands 330 meters tall including its antennas. [c4]",
+        "abstained": false
+      },
+      {
+        "q": "What is the maximum depth of the Amazon river?",
+        "type": "adversarial",
+        "answer": "The Amazon river system discharges more fresh water than any other river in the world. [c2]",
+        "abstained": false
+      },
+      {
+        "q": "Who was the second person to step onto the lunar surface during Apollo 12?",
+        "type": "adversarial",
+        "answer": "Records indicate that the second person step involved approximately 31 distinct cases.",
+        "abstained": false
+      },
+      {
+        "q": "Exactly how many watchtowers stand on the Great Wall of China?",
+        "type": "adversarial",
+        "answer": "Watchtowers along the Great Wall were used for signaling with smoke and fire. [c8] The Great Wall of China is a series of fortifications built across the historical northern borders of China. [c7] The exactly watchtowers stand was first documented in 1933 and remains well known today. [c8]",
+        "abstained": false
+      },
+      {
+        "q": "In what year did honey bees go extinct?",
+        "type": "adversarial",
+        "answer": "Honey bees are social insects that live in colonies with a single queen. [c11] A healthy honey bee colony can contain between 20000 and 80000 worker bees in summer. [c11]",
+        "abstained": false
+      },
+      {
+        "q": "How much does the average human heart weigh in grams?",
+        "type": "adversarial",
+        "answer": "The human heart is a muscular organ that pumps blood through the circulatory system. [c34] An adult human heart beats about 100000 times per day. [c9]",
+        "abstained": false
+      },
+      {
+        "q": "In what year did Gutenberg print the first daily newspaper?",
+        "type": "adversarial",
+        "answer": "The year gutenberg print was first documented in 1904 and remains well known today.",
+        "abstained": false
+      },
+      {
+        "q": "How many climbers reached the summit of Mount Everest in 1975?",
+        "type": "adversarial",
+        "answer": "The climbers reached summit was first documented in 1960 and remains well known today.",
+        "abstained": false
+      }
+    ],
+    "veritas": [
+      {
+        "q": "What is the height of the summit of Mount Everest in meters?",
+        "type": "answerable",
+        "answer": "Mount Everest is the highest mountain on Earth. [c5] Its summit stands at 8849 meters above sea level. [c5]",
+        "abstained": false
+      },
+      {
+        "q": "Who made the first confirmed ascent of Mount Everest?",
+        "type": "answerable",
+        "answer": "The first confirmed ascent of Mount Everest was made by Edmund Hillary and Tenzing Norgay in 1953. [c6]",
+        "abstained": false
+      },
+      {
+        "q": "What depth does the Challenger Deep reach?",
+        "type": "answerable",
+        "answer": "The Challenger Deep at the southern end of the Mariana Trench reaches a depth of about 10935 meters. [c32]",
+        "abstained": false
+      },
+      {
+        "q": "How large an area does the Pacific Ocean cover?",
+        "type": "answerable",
+        "answer": "The Pacific Ocean is the largest and deepest ocean on Earth. [c15] The Mariana Trench in the western Pacific Ocean is the deepest known point of the world's oceans. [c15]",
+        "abstained": false
+      },
+      {
+        "q": "Which pigment absorbs light during photosynthesis?",
+        "type": "answerable",
+        "answer": "Chlorophyll is the green pigment that absorbs light, mostly in the blue and red parts of the spectrum. [c17] Chlorophyll is the green pigment that absorbs light, mostly in the blue and red parts of the spectrum. [c18]",
+        "abstained": false
+      },
+      {
+        "q": "What do plants produce during photosynthesis?",
+        "type": "answerable",
+        "answer": "During photosynthesis, plants take in carbon dioxide and water and produce glucose and oxygen. [c17] Photosynthesis is the process by which green plants convert sunlight into chemical energy. [c17]",
+        "abstained": false
+      },
+      {
+        "q": "How long is the main Ming wall of the Great Wall of China?",
+        "type": "answerable",
+        "answer": "The Great Wall of China is a series of fortifications built across the historical northern borders of China. [c7] The main Ming wall measures about 8850 kilometers in length. [c7]",
+        "abstained": false
+      },
+      {
+        "q": "Why was the Great Wall of China built?",
+        "type": "answerable",
+        "answer": "The Great Wall of China is a series of fortifications built across the historical northern borders of China. [c7] The Great Wall was built primarily to protect against invasions and raids from nomadic groups. [c8]",
+        "abstained": false
+      },
+      {
+        "q": "How do worker bees communicate the location of food sources?",
+        "type": "answerable",
+        "answer": "Worker bees communicate the location of food sources through a behavior called the waggle dance. [c11] Worker bees communicate the location of food sources through a behavior called the waggle dance. [c12]",
+        "abstained": false
+      },
+      {
+        "q": "How many eggs can a queen honey bee lay in a single day?",
+        "type": "answerable",
+        "answer": "A queen honey bee can lay more than 1500 eggs in a single day during peak season. [c12] Honey bees are social insects that live in colonies with a single queen. [c11]",
+        "abstained": false
+      },
+      {
+        "q": "When was the Eiffel Tower completed?",
+        "type": "answerable",
+        "answer": "The Eiffel Tower is a wrought-iron lattice tower in Paris, France. [c3] It was designed by the engineering company of Gustave Eiffel and completed in 1889. [c3]",
+        "abstained": false
+      },
+      {
+        "q": "How tall is the Eiffel Tower including its antennas?",
+        "type": "answerable",
+        "answer": "The Eiffel Tower stands 330 meters tall including its antennas. [c3] The Eiffel Tower stands 330 meters tall including its antennas. [c4]",
+        "abstained": false
+      },
+      {
+        "q": "How many chambers does the human heart have?",
+        "type": "answerable",
+        "answer": "The human heart is a muscular organ that pumps blood through the circulatory system. [c9] An adult human heart beats about 100000 times per day. [c9]",
+        "abstained": false
+      },
+      {
+        "q": "How many times does an adult human heart beat per day?",
+        "type": "answerable",
+        "answer": "An adult human heart beats about 100000 times per day. [c9] The average adult heart pumps roughly 7500 liters of blood every day. [c10]",
+        "abstained": false
+      },
+      {
+        "q": "How many square kilometers does the Amazon rainforest span?",
+        "type": "answerable",
+        "answer": "The Amazon rainforest is the largest tropical rainforest on Earth. [c1] It spans about 5.5 million square kilometers across nine countries in South America. [c1]",
+        "abstained": false
+      },
+      {
+        "q": "What percentage of the Amazon rainforest lies within Brazil?",
+        "type": "answerable",
+        "answer": "Around 60 percent of the Amazon rainforest lies within Brazil. [c1] Around 60 percent of the Amazon rainforest lies within Brazil. [c2]",
+        "abstained": false
+      },
+      {
+        "q": "What is the average distance from Earth to the Moon?",
+        "type": "answerable",
+        "answer": "The average distance from Earth to the Moon is about 384400 kilometers. [c13] The same side of the Moon always faces Earth because the Moon is tidally locked. [c14]",
+        "abstained": false
+      },
+      {
+        "q": "Who walked on the Moon during the Apollo 11 mission?",
+        "type": "answerable",
+        "answer": "Apollo 11 landed the first humans on the Moon in 1969, with Neil Armstrong and Buzz Aldrin walking on its surface. [c14]",
+        "abstained": false
+      },
+      {
+        "q": "Who introduced the movable-type printing press to Europe?",
+        "type": "answerable",
+        "answer": "Johannes Gutenberg introduced the movable-type printing press to Europe around 1440. [c19] The Gutenberg Bible, printed around 1455, was the first major book printed with movable type in Europe. [c19]",
+        "abstained": false
+      },
+      {
+        "q": "Around what year was the Gutenberg Bible printed?",
+        "type": "answerable",
+        "answer": "The Gutenberg Bible, printed around 1455, was the first major book printed with movable type in Europe. [c20] The Gutenberg Bible, printed around 1455, was the first major book printed with movable type in Europe. [c19]",
+        "abstained": false
+      },
+      {
+        "q": "Who won the 1994 FIFA World Cup?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "What is the boiling point of mercury?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "Which composer wrote the Ninth Symphony?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "What is the capital of Australia?",
+        "type": "unanswerable",
+        "answer": "The Pacific Ocean touches the coasts of Asia, Australia, and the Americas. [c16]",
+        "abstained": false
+      },
+      {
+        "q": "How fast can a cheetah run?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "Who painted the Mona Lisa?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "In what year did World War Two end?",
+        "type": "unanswerable",
+        "answer": "The Eiffel Tower receives around 7 million visitors every year, making it one of the most visited paid monuments in the world. [c4]",
+        "abstained": false
+      },
+      {
+        "q": "What is the chemical symbol for gold?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "How many strings does a violin have?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "Who invented the telephone?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "What is the population of Tokyo?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "Which planet has the most moons in the solar system?",
+        "type": "unanswerable",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "In what year was the Eiffel Tower demolished?",
+        "type": "adversarial",
+        "answer": "The Eiffel Tower receives around 7 million visitors every year, making it one of the most visited paid monuments in the world. [c4] The Eiffel Tower stands 330 meters tall including its antennas. [c4]",
+        "abstained": false
+      },
+      {
+        "q": "What is the maximum depth of the Amazon river?",
+        "type": "adversarial",
+        "answer": "The Amazon river system discharges more fresh water than any other river in the world. [c2]",
+        "abstained": false
+      },
+      {
+        "q": "Who was the second person to step onto the lunar surface during Apollo 12?",
+        "type": "adversarial",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "Exactly how many watchtowers stand on the Great Wall of China?",
+        "type": "adversarial",
+        "answer": "Watchtowers along the Great Wall were used for signaling with smoke and fire. [c8] The Great Wall of China is a series of fortifications built across the historical northern borders of China. [c7]",
+        "abstained": false
+      },
+      {
+        "q": "In what year did honey bees go extinct?",
+        "type": "adversarial",
+        "answer": "Honey bees are social insects that live in colonies with a single queen. [c11] A healthy honey bee colony can contain between 20000 and 80000 worker bees in summer. [c11]",
+        "abstained": false
+      },
+      {
+        "q": "How much does the average human heart weigh in grams?",
+        "type": "adversarial",
+        "answer": "The human heart is a muscular organ that pumps blood through the circulatory system. [c34] An adult human heart beats about 100000 times per day. [c9]",
+        "abstained": false
+      },
+      {
+        "q": "In what year did Gutenberg print the first daily newspaper?",
+        "type": "adversarial",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      },
+      {
+        "q": "How many climbers reached the summit of Mount Everest in 1975?",
+        "type": "adversarial",
+        "answer": "I don't have enough evidence in the provided documents to answer this question reliably.",
+        "abstained": true
+      }
+    ]
+  }
+}

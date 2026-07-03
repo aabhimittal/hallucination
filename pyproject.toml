@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "veritas-rag"
+version = "0.1.0"
+description = "VERITAS: Verification-Enhanced Retrieval with Iterative Truth Assessment and Scoring - a hallucination-reduction RAG pipeline"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.40"]
+hf = ["huggingface_hub>=0.24"]
+demo = ["gradio>=4.0", "pandas"]
+dev = ["pytest>=7.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
