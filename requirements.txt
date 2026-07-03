@@ -1,0 +1,5 @@
+# Hugging Face Spaces runtime dependencies.
+# The veritas package itself is pure-stdlib; app.py adds ./src to sys.path,
+# so no editable install is needed on Spaces.
+gradio>=4.44
+pandas
