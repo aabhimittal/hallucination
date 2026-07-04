@@ -99,6 +99,24 @@ the sweet spot (zero fabricated claims delivered, no false abstention, full
 accuracy); **Calibration** exposes the base model's over-confidence via ECE/AUROC
 rather than fixing it. There is no single winner — that's the point.
 
+### Run the comparison on a real model — free, on a Colab GPU
+
+No API keys or credits needed: run any open-weights instruct model on Colab's
+free T4 and point the whole benchmark at it.
+[`notebooks/colab_live_benchmark.ipynb`](notebooks/colab_live_benchmark.ipynb)
+does it end-to-end (defaults to `Qwen/Qwen2.5-7B-Instruct`, 4-bit, which fits a
+T4). Locally with a GPU:
+
+```bash
+pip install -e ".[local]"
+python benchmarks/run_comparison.py --provider local \
+    --model Qwen/Qwen2.5-7B-Instruct --load-4bit --balanced 5 --out comparison_live
+```
+
+`--provider local` uses `veritas.local.LocalChatClient` (applies the model's
+chat template + optional 4-bit quantization). Paid alternatives:
+`--provider openai --model gpt-4o-mini` (~15¢) or `--provider anthropic|hf`.
+
 **White-box (DoLa)** is compared separately because it needs logit access
 (`python benchmarks/run_dola.py`, requires `pip install 'veritas-rag[local]'`).
 A real run on gpt2 (`benchmarks/dola.md`): DoLa lifts answer accuracy 0% → 12.5%

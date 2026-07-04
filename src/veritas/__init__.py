@@ -19,6 +19,8 @@ from .pipeline import (
     VeritasResult,
 )
 from .prompts import ABSTAIN_TEXT, STAGE_TEMPERATURES
+# LocalChatClient is imported lazily via veritas.local to avoid importing torch
+# for offline users; it is intentionally not re-exported here.
 from .retrieval import HybridRetriever, ScoredChunk
 from .verification import ClaimVerdict, Verdict, lexical_entailment
 

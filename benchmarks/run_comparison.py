@@ -47,6 +47,10 @@ def build_llm(args):
     if args.provider == "hf":
         from veritas import HFInferenceClient
         return HFInferenceClient(model=args.model or "meta-llama/Llama-3.1-8B-Instruct")
+    if args.provider == "local":
+        from veritas.local import LocalChatClient
+        return LocalChatClient(model=args.model or "Qwen/Qwen2.5-7B-Instruct",
+                               load_4bit=args.load_4bit)
     raise ValueError(args.provider)
 
 
@@ -79,8 +83,10 @@ def fmt(v, pct=True):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--provider", default="mock",
-                   choices=["mock", "anthropic", "openai", "hf"])
+                   choices=["mock", "anthropic", "openai", "hf", "local"])
     p.add_argument("--model", default=None)
+    p.add_argument("--load-4bit", action="store_true",
+                   help="4-bit quantize a local model (fits a 7-8B model on a free T4 GPU)")
     p.add_argument("--hallucination-rate", type=float, default=0.35)
     p.add_argument("--seed", type=int, default=13)
     p.add_argument("--limit", type=int, default=None,
