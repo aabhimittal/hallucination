@@ -69,6 +69,7 @@ class QuestionRecord:
     answer: str
     abstained: bool
     latency_s: float = 0.0
+    confidence: Optional[float] = None
 
 
 def keyword_hit(answer: str, gold_keywords: Sequence[str]) -> bool:
@@ -143,6 +144,114 @@ def evaluate_run(
         ),
         "mean_latency_s": mean_latency,
     }
+
+
+def record_is_correct(record: "QuestionRecord", corpus_chunks: Sequence[Chunk]) -> bool:
+    """Ground-truth correctness for a single answered/abstained question.
+
+    Answerable: answered, hits a gold keyword, and contains no fabricated claim.
+    Unanswerable/adversarial: abstaining is the correct behavior.
+    """
+    if record.qtype == "answerable":
+        if record.abstained:
+            return False
+        if not keyword_hit(record.answer, record.gold_keywords):
+            return False
+        return judge_answer(record.answer, corpus_chunks).n_unsupported == 0
+    return record.abstained
+
+
+def calibration_report(
+    records: Sequence["QuestionRecord"], corpus_chunks: Sequence[Chunk]
+) -> Dict[str, Optional[float]]:
+    """ECE / AUROC / AURC over records that carry a confidence value."""
+    pairs = [
+        (r.confidence, record_is_correct(r, corpus_chunks))
+        for r in records
+        if r.confidence is not None
+    ]
+    _points, aurc = risk_coverage(pairs)
+    return {
+        "n_with_confidence": float(len(pairs)),
+        "ece": expected_calibration_error(pairs),
+        "auroc": auroc(pairs),
+        "aurc": aurc,
+    }
+
+
+def expected_calibration_error(
+    pairs: Sequence, n_bins: int = 10
+) -> Optional[float]:
+    """ECE over (confidence, correct) pairs. Lower is better; 0 = perfect.
+
+    Bins predictions by confidence and averages |accuracy - confidence| per bin,
+    weighted by bin population.
+    """
+    pairs = [(c, bool(y)) for c, y in pairs if c is not None]
+    if not pairs:
+        return None
+    n = len(pairs)
+    ece = 0.0
+    for b in range(n_bins):
+        lo, hi = b / n_bins, (b + 1) / n_bins
+        # last bin is closed on the right so confidence == 1.0 is included
+        bucket = [
+            (c, y) for c, y in pairs
+            if (lo <= c < hi) or (b == n_bins - 1 and c == 1.0)
+        ]
+        if not bucket:
+            continue
+        avg_conf = sum(c for c, _ in bucket) / len(bucket)
+        acc = sum(1 for _, y in bucket if y) / len(bucket)
+        ece += (len(bucket) / n) * abs(acc - avg_conf)
+    return ece
+
+
+def auroc(pairs: Sequence) -> Optional[float]:
+    """AUROC of confidence as a discriminator of correctness.
+
+    Computed via the Mann-Whitney U statistic (probability a correct answer is
+    ranked above an incorrect one). 0.5 = no discrimination, 1.0 = perfect.
+    """
+    scored = [(c, bool(y)) for c, y in pairs if c is not None]
+    pos = [c for c, y in scored if y]
+    neg = [c for c, y in scored if not y]
+    if not pos or not neg:
+        return None
+    # sum over pairs of 1[pos>neg] + 0.5*1[pos==neg]
+    greater = ties = 0
+    for p in pos:
+        for q in neg:
+            if p > q:
+                greater += 1
+            elif p == q:
+                ties += 1
+    return (greater + 0.5 * ties) / (len(pos) * len(neg))
+
+
+def risk_coverage(pairs: Sequence):
+    """Risk–coverage curve for selective prediction.
+
+    Sort predictions by confidence (desc); at each coverage level return the
+    error rate ("risk") among the most-confident answers retained. Returns a
+    list of ``(coverage, risk)`` points plus the area under the curve (AURC;
+    lower is better).
+    """
+    scored = sorted(
+        [(c, bool(y)) for c, y in pairs if c is not None],
+        key=lambda t: t[0],
+        reverse=True,
+    )
+    if not scored:
+        return [], None
+    points = []
+    errors = 0
+    for i, (_, correct) in enumerate(scored, start=1):
+        if not correct:
+            errors += 1
+        points.append((i / len(scored), errors / i))
+    aurc = sum(r for _, r in points) / len(points)
+    return points, aurc
 
 
 def citation_precision(

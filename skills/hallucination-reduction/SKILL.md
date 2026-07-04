@@ -237,6 +237,46 @@ Grade with a judge that is independent of the generator (a model-free lexical
 judge, a different model, or humans). Reference harness:
 `benchmarks/run_benchmark.py` in this repo.
 
+## 5. The technique landscape — what to reach for
+
+Hallucination-reduction techniques fall into families that attack the problem
+at different layers. They compose; production systems stack several. This repo
+implements and benchmarks all of the model-agnostic ones (`veritas.techniques`,
+compared in `benchmarks/run_comparison.py`).
+
+| Family | Technique | What it does | Cost / requirement |
+|---|---|---|---|
+| **Retrieval** | Graph-RAG | Entity/relation graph + multi-hop traversal so linked facts across documents are retrievable | needs relational corpus + reasoning LLM to shine |
+| **Prompting/verify** | Grounding contract, Quote Grounding | Citation contract; extract verbatim quotes and keep only exact substrings | 1–2 extra calls |
+| **Self-verification** | VERITAS / Chain-of-Verification, Multi-Agent Consensus | Decompose into claims, verify each against evidence (LLM + NLI judge), repair/drop | N extra calls (one per claim) |
+| **Statistical uncertainty** | Semantic Entropy | Sample N, cluster by meaning, abstain when the meanings disagree | N× generation cost |
+| **Calibration** | Verbalized confidence + selective prediction | Emit confidence, measure ECE/AUROC, withhold low-confidence answers | ~free; the training version (calibration RLHF) needs fine-tuning |
+| **Guardrails** | Neurosymbolic rails | Programmatic input/output constraints (scope, format, no speculation) | ~free, deterministic |
+| **Decoding** | DoLa, contrastive/speculative decoding | Contrast transformer layers (or draft vs target) to amplify factual tokens | **white-box logit access** — local model only |
+
+**Choosing:**
+
+- **Start with the grounding contract + abstention gate** (§1, §4). Highest
+  ROI, near-zero cost, works everywhere.
+- **Add self-verification (CoVe/VERITAS)** when you need per-claim guarantees
+  and can afford extra calls. This is the sweet spot in the benchmark: zero
+  fabricated claims delivered, no loss of accuracy.
+- **Add Semantic Entropy** when the base model is unreliable and you'd rather
+  abstain than risk a wrong answer — but watch coverage: it trades away
+  answerable questions for safety. It's a *reliability detector*, not a free
+  win.
+- **Measure calibration** regardless — it tells you whether the model's stated
+  confidence can be trusted for selective prediction (often it can't, out of
+  the box).
+- **Graph-RAG** when questions need multi-hop reasoning across documents.
+- **DoLa / decoding interventions** only when you control the model weights and
+  can access logits; they need no extra prompt calls but can't run on a
+  black-box API.
+
+Note the honest tradeoffs: no technique dominates on every metric. Lower
+hallucination is usually bought with lower coverage (more abstention). Report
+hallucination rate *and* false-abstention rate together, always.
+
 ## Quick checklist
 
 - [ ] Evidence-only contract with numbered-chunk citations, evidence before question

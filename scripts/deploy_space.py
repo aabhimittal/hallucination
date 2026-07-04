@@ -32,7 +32,13 @@ INCLUDE = [
     "benchmarks/dataset.json",
     "benchmarks/results.md",
     "benchmarks/results.json",
+    "benchmarks/comparison.md",
+    "benchmarks/comparison.json",
+    "benchmarks/dola.md",
+    "benchmarks/dola.json",
     "benchmarks/run_benchmark.py",
+    "benchmarks/run_comparison.py",
+    "benchmarks/run_dola.py",
     "skills/hallucination-reduction/SKILL.md",
 ]
 

@@ -201,15 +201,37 @@ class MockLLM:
         self.hallucination_rate = hallucination_rate
         self.seed = seed
         self.calls: List[str] = []  # task markers, for test introspection
+        self._sample_counter = 0    # advances only on sampled (temp>0) calls
 
     # ------------------------------------------------------------------ API
     def complete(self, prompt, system=None, temperature=0.0, max_tokens=512):
+        # A sampled call (temperature > 0) draws a fresh nonce so repeated
+        # identical prompts vary — this is what makes semantic entropy and
+        # self-consistency measurable against the mock model.
+        if temperature and temperature > 0:
+            nonce = self._sample_counter
+            self._sample_counter += 1
+        else:
+            nonce = 0
+
         if "TASK: GROUNDED_ANSWER" in prompt:
             self.calls.append("generate")
-            return self._answer(prompt, grounded=True)
+            return self._answer(prompt, grounded=True, nonce=nonce)
         if "TASK: BASELINE_ANSWER" in prompt:
             self.calls.append("baseline")
-            return self._answer(prompt, grounded=False)
+            return self._answer(prompt, grounded=False, nonce=nonce)
+        if "TASK: ANSWER_WITH_CONFIDENCE" in prompt:
+            self.calls.append("confidence")
+            return self._answer_with_confidence(prompt, nonce=nonce)
+        if "TASK: EXTRACT_QUOTES" in prompt:
+            self.calls.append("quotes")
+            return self._extract_quotes(prompt, nonce=nonce)
+        if "TASK: SYNTHESIZE_FROM_QUOTES" in prompt:
+            self.calls.append("synthesize")
+            return self._synthesize(prompt)
+        if "TASK: EDIT_DRAFT" in prompt:
+            self.calls.append("edit")
+            return _section(prompt, "DRAFT:")  # faithful editor: no new facts
         if "TASK: DECOMPOSE_CLAIMS" in prompt:
             self.calls.append("decompose")
             return self._decompose(prompt)
@@ -225,26 +247,30 @@ class MockLLM:
     def _rng(self, key: str) -> random.Random:
         return random.Random(f"{self.seed}:{key}")
 
-    def _answer(self, prompt: str, grounded: bool) -> str:
-        question = _section(prompt, "QUESTION:")
-        evidence = _parse_evidence(prompt)
+    def _relevant_sentences(self, question, evidence):
         q_terms = content_tokens(question)
-
-        # score every evidence sentence against the question
         scored: List[Tuple[float, str, str]] = []
         for chunk_id, text in evidence:
             for sent in _split_simple_sentences(text):
                 scored.append((_overlap(q_terms, sent), chunk_id, sent))
         scored.sort(key=lambda t: t[0], reverse=True)
-        relevant = [(cid, s) for ov, cid, s in scored if ov >= 0.34][:2]
+        return [(cid, s) for ov, cid, s in scored if ov >= 0.34][:2]
 
-        rng = self._rng(question)
+    def _answer(self, prompt: str, grounded: bool, nonce: int = 0) -> str:
+        question = _section(prompt, "QUESTION:")
+        evidence = _parse_evidence(prompt)
+        relevant = self._relevant_sentences(question, evidence)
+
+        # nonce 0 reproduces the original single-call behavior exactly; sampled
+        # calls (nonce > 0) vary so multi-sample methods see real spread.
+        rng = self._rng(question if nonce == 0 else f"{question}:{nonce}")
         hallucinate = rng.random() < self.hallucination_rate
 
         if not relevant:
             if grounded:
                 return ABSTAIN_TEXT
-            # A naively-prompted model guesses instead of abstaining.
+            # A naively-prompted model guesses instead of abstaining, and each
+            # sample guesses differently -> high semantic entropy.
             return self._fabricate(question, rng)
 
         sentences = [f"{s} [{cid}]" for cid, s in relevant]
@@ -252,6 +278,48 @@ class MockLLM:
         if hallucinate:
             answer = self._corrupt(answer, question, evidence, rng)
         return answer
+
+    def _answer_with_confidence(self, prompt: str, nonce: int = 0) -> str:
+        question = _section(prompt, "QUESTION:")
+        evidence = _parse_evidence(prompt)
+        relevant = self._relevant_sentences(question, evidence)
+        rng = self._rng(f"conf:{question}:{nonce}")
+        if not relevant:
+            return f"{ABSTAIN_TEXT}\nCONFIDENCE: 0.10"
+        answer = self._answer(prompt.replace("ANSWER_WITH_CONFIDENCE", "GROUNDED_ANSWER"),
+                              grounded=True, nonce=nonce)
+        # confident when grounded; a fabricated/corrupted answer still reads
+        # confident to the model itself -> tests calibration realistically
+        conf = round(0.82 + rng.random() * 0.15, 2)
+        return f"{answer}\nCONFIDENCE: {conf}"
+
+    def _extract_quotes(self, prompt: str, nonce: int = 0) -> str:
+        question = _section(prompt, "QUESTION:")
+        evidence = _parse_evidence(prompt)
+        relevant = self._relevant_sentences(question, evidence)
+        rng = self._rng(f"quote:{question}:{nonce}")
+        if not relevant:
+            return "QUOTE: NONE"
+        lines = [f"QUOTE: {s} [{cid}]" for cid, s in relevant]
+        if rng.random() < self.hallucination_rate:
+            # a hallucinating model sometimes "quotes" text that isn't there;
+            # the grounding verifier must catch it as a non-substring
+            lines.append(f"QUOTE: {self._fabricate(question, rng)} [{relevant[0][0]}]")
+        return "\n".join(lines)
+
+    def _synthesize(self, prompt: str) -> str:
+        # scan the whole prompt for QUOTE: lines (they only appear in the
+        # quotes block); _section can't be used because the QUOTE: sub-lines
+        # look like section headers to its splitter
+        quotes = [
+            line.strip()[len("QUOTE:"):].strip()
+            for line in prompt.splitlines()
+            if line.strip().upper().startswith("QUOTE:")
+            and "NONE" not in line.upper()
+        ]
+        if not quotes:
+            return ABSTAIN_TEXT
+        return " ".join(quotes)
 
     @staticmethod
     def _fabricate(question: str, rng: random.Random) -> str:

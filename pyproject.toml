@@ -15,6 +15,8 @@ dependencies = []
 anthropic = ["anthropic>=0.40"]
 openai = ["openai>=1.40"]
 hf = ["huggingface_hub>=0.24"]
+hf-nli = ["transformers>=4.44"]
+local = ["torch>=2.2", "transformers>=4.44"]
 demo = ["gradio>=4.0", "pandas"]
 dev = ["pytest>=7.0"]
 

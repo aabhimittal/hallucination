@@ -27,11 +27,15 @@ from veritas import (
     documents_from_texts,
 )
 from veritas.chunking import load_documents_from_dir
+from veritas.graph import GraphRetriever
+from veritas.techniques import build_registry
+from veritas.techniques.graph_rag import GraphRAGTechnique
 from veritas.verification import Verdict
 
 BUNDLED_DOCS = load_documents_from_dir(HERE / "benchmarks" / "corpus")
 BUNDLED_CHUNKS = chunk_corpus(BUNDLED_DOCS)
 BUNDLED_RETRIEVER = HybridRetriever(BUNDLED_CHUNKS)
+BUNDLED_GRAPH_RETRIEVER = GraphRetriever(BUNDLED_CHUNKS)
 
 PROVIDERS = [
     "Demo mode — MockLLM, no key needed",
@@ -152,6 +156,59 @@ def ask(question, provider, api_key, model, custom_docs):
     return veritas_md, baseline_md, trace_md, claims_df, evidence_md
 
 
+def compare_techniques(question, provider, api_key, model, custom_docs):
+    """Run every technique on one question, side by side."""
+    question = (question or "").strip()
+    if not question:
+        raise gr.Error("Please enter a question.")
+    llm = build_llm(provider, api_key, model)
+    if (custom_docs or "").strip():
+        retriever, chunks = build_retriever(custom_docs)
+        graph_retriever = GraphRetriever(chunks)
+    else:
+        retriever, graph_retriever = BUNDLED_RETRIEVER, BUNDLED_GRAPH_RETRIEVER
+
+    techniques = build_registry(llm, retriever)
+    techniques[GraphRAGTechnique.name] = GraphRAGTechnique(llm, graph_retriever)
+
+    rows = []
+    for name, tech in techniques.items():
+        t0 = time.perf_counter()
+        res = tech.answer(question)
+        ms = (time.perf_counter() - t0) * 1000
+        rows.append([
+            name,
+            tech.family,
+            "🛑 abstain" if res.abstained else "✅ answer",
+            "—" if res.confidence is None else f"{res.confidence:.2f}",
+            (res.answer[:90] + "…") if len(res.answer) > 90 else res.answer,
+            f"{ms:.0f}",
+        ])
+    return pd.DataFrame(
+        rows,
+        columns=["technique", "family", "decision", "confidence", "answer", "ms"],
+    )
+
+
+def load_comparison():
+    md = (HERE / "benchmarks" / "comparison.md").read_text()
+    data = json.loads((HERE / "benchmarks" / "comparison.json").read_text())["results"]
+    rows = []
+    chart_metrics = [
+        ("hallucination_rate", "Hallucination rate"),
+        ("mean_groundedness", "Mean groundedness"),
+        ("abstention_recall", "Abstention recall"),
+        ("false_abstention_rate", "False abstention"),
+    ]
+    for name, entry in data.items():
+        for key, label in chart_metrics:
+            value = entry["metrics"].get(key)
+            if value is not None:
+                rows.append({"technique": name, "metric": label,
+                             "value": round(value * 100, 1)})
+    return md, pd.DataFrame(rows)
+
+
 def load_benchmark():
     results_md = (HERE / "benchmarks" / "results.md").read_text()
     data = json.loads((HERE / "benchmarks" / "results.json").read_text())
@@ -225,20 +282,58 @@ with gr.Blocks(title="VERITAS — Hallucination-Reduction RAG") as demo:
             outputs=[veritas_out, baseline_out, trace_out, claims_out, evidence_out],
         )
 
+    with gr.Tab("Compare techniques"):
+        gr.Markdown(
+            "### Run every hallucination-reduction technique on one question\n"
+            "Baseline RAG, VERITAS, Semantic Entropy, Quote Grounding, "
+            "Multi-Agent Consensus, Neurosymbolic Guardrails, Calibrated "
+            "Selective Prediction, and Graph-RAG — same question, same "
+            "evidence, side by side."
+        )
+        with gr.Row():
+            cmp_question = gr.Textbox(label="Question", scale=3,
+                                      placeholder=EXAMPLE_QUESTIONS[0])
+            cmp_provider = gr.Dropdown(PROVIDERS, value=PROVIDERS[1],
+                                       label="LLM provider", scale=2)
+        with gr.Row():
+            cmp_key = gr.Textbox(label="API key (real providers only; never stored)",
+                                 type="password")
+            cmp_model = gr.Textbox(label="Model id (optional)")
+        cmp_docs = gr.Textbox(
+            label="Optional: your own documents (blank-line-separated; empty = bundled corpus)",
+            lines=2,
+        )
+        gr.Examples(EXAMPLE_QUESTIONS, inputs=cmp_question, label="Try these")
+        cmp_btn = gr.Button("Compare all techniques", variant="primary")
+        cmp_out = gr.Dataframe(interactive=False)
+        cmp_btn.click(compare_techniques,
+                      inputs=[cmp_question, cmp_provider, cmp_key, cmp_model, cmp_docs],
+                      outputs=cmp_out)
+        cmp_question.submit(compare_techniques,
+                            inputs=[cmp_question, cmp_provider, cmp_key, cmp_model, cmp_docs],
+                            outputs=cmp_out)
+
     with gr.Tab("Benchmarks"):
+        gr.Markdown("## VERITAS vs Baseline RAG")
         results_md_text, chart_df = load_benchmark()
         gr.Markdown(results_md_text)
         gr.BarPlot(
-            chart_df,
-            x="metric",
-            y="value",
-            color="system",
+            chart_df, x="metric", y="value", color="system",
             title="Baseline RAG vs VERITAS (%, higher is better except the two rates)",
             y_lim=[0, 100],
         )
+        gr.Markdown("---\n## All techniques compared")
+        comparison_md, comparison_df = load_comparison()
+        gr.Markdown(comparison_md)
+        gr.BarPlot(
+            comparison_df, x="technique", y="value", color="metric",
+            title="Every technique on the shared benchmark (%)",
+            y_lim=[0, 100],
+        )
         gr.Markdown(
-            "Reproduce locally: `python benchmarks/run_benchmark.py` "
-            "(add `--provider anthropic|openai|hf` to benchmark a live model)."
+            "Reproduce: `python benchmarks/run_comparison.py` (all techniques) · "
+            "`python benchmarks/run_dola.py` (white-box DoLa, needs a local model) · "
+            "add `--provider anthropic|openai|hf` to benchmark a live model."
         )
 
     with gr.Tab("How it works"):
