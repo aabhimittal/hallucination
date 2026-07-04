@@ -1,0 +1,16 @@
+
+[anthropic]
+anthropic>=0.40
+
+[demo]
+gradio>=4.0
+pandas
+
+[dev]
+pytest>=7.0
+
+[hf]
+huggingface_hub>=0.24
+
+[openai]
+openai>=1.40
