@@ -80,7 +80,7 @@ def test_baseline_fabricates_on_unanswerable(retriever):
 
 def test_mostly_unsupported_answer_downgraded_to_abstention(retriever):
     class FabricatingLLM(MockLLM):
-        def _answer(self, prompt, grounded):
+        def _answer(self, prompt, grounded, nonce=0):
             return (
                 "The Moon is made of green cheese. [c1] "
                 "Napoleon owned a pet dragon named Fluffy. [c1]"
@@ -97,7 +97,7 @@ def test_mostly_unsupported_answer_downgraded_to_abstention(retriever):
 
 def test_repair_path_replaces_claim(retriever):
     class OneBadClaimLLM(MockLLM):
-        def _answer(self, prompt, grounded):
+        def _answer(self, prompt, grounded, nonce=0):
             # one supported claim + one wrong-number claim on the same topic
             return (
                 "Mount Everest is the highest mountain on Earth. [c1] "
@@ -116,7 +116,7 @@ def test_repair_path_replaces_claim(retriever):
 
 def test_repair_disabled_removes_instead(retriever):
     class OneBadClaimLLM(MockLLM):
-        def _answer(self, prompt, grounded):
+        def _answer(self, prompt, grounded, nonce=0):
             return (
                 "Mount Everest is the highest mountain on Earth. [c1] "
                 "Its summit stands at 9021 meters above sea level. [c1]"

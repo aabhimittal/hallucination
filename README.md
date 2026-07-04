@@ -61,6 +61,51 @@ scored cases where the system answered an adversarial question with true-but-
 irrelevant corpus facts.) Benchmark a live model with
 `python benchmarks/run_benchmark.py --provider anthropic|openai|hf`.
 
+## Technique zoo — quantitative comparison
+
+Beyond VERITAS, the repo implements a spread of hallucination-reduction
+techniques from the recent literature behind **one comparable interface**
+(`veritas.techniques`), and benchmarks them head-to-head on the same corpus
+with the same independent judge. Run `python benchmarks/run_comparison.py`.
+
+| Technique | Family | Idea | Runtime |
+|---|---|---|---|
+| **Baseline RAG** | baseline | Retrieve, stuff context, answer at T=0.7, trust output | any LLM |
+| **VERITAS** | verify | Gate → cite → decompose → dual-judge verify → repair → score | any LLM |
+| **Semantic Entropy** | uncertainty | Sample N, cluster by meaning, abstain on high entropy (Nature 2024) | any LLM |
+| **Quote Grounding** | verify | Extract verbatim quotes, drop any that aren't exact substrings, synthesize from those | any LLM |
+| **Multi-Agent Consensus** | verify | Researcher → editor → NLI judge, rewrite on contradiction | any LLM |
+| **Neurosymbolic Guardrails** | guardrail | Programmatic input/output rails (scope, citations, no speculation) | any LLM |
+| **Calibrated Selective Prediction** | uncertainty | Verbalized confidence + ECE/AUROC/risk–coverage; withhold low-confidence answers | any LLM |
+| **Graph-RAG** | graph | Entity/relation graph + multi-hop traversal retrieval | any LLM |
+| **DoLa** | decoding | Contrast late vs early transformer layers to amplify facts (Chuang 2023) | **local HF model** |
+
+Representative result (40 questions, MockLLM with 35% injected hallucinations,
+same lexical judge for all — `benchmarks/comparison.md`):
+
+| Metric | Baseline | VERITAS | Sem. Entropy | Quote Gr. | Multi-Agent | Guardrails | Calib. | Graph-RAG |
+|---|---|---|---|---|---|---|---|---|
+| Hallucination rate ↓ | 72.5% | 17.5% | **12.5%** | 17.5% | 17.5% | 22.5% | 25.0% | 25.0% |
+| Mean groundedness ↑ | 55.0% | **100%** | **100%** | **100%** | **100%** | 97.5% | 90.7% | 87.2% |
+| Abstention recall ↑ | 0% | 65% | **75%** | 65% | 65% | 65% | 65% | 70% |
+| False abstention ↓ | **0%** | **0%** | 50% | **0%** | **0%** | **0%** | **0%** | 10% |
+| Answer accuracy ↑ | 80% | **90%** | **90%** | **90%** | 80% | **90%** | **90%** | 83% |
+
+The comparison is deliberately honest about tradeoffs: **Semantic Entropy** buys
+the lowest hallucination rate by abstaining aggressively (50% false-abstention,
+half the answerable coverage) — a *reliability detector* that distrusts a noisy
+base model; the **verify** family (VERITAS / Quote Grounding / Multi-Agent) hits
+the sweet spot (zero fabricated claims delivered, no false abstention, full
+accuracy); **Calibration** exposes the base model's over-confidence via ECE/AUROC
+rather than fixing it. There is no single winner — that's the point.
+
+**White-box (DoLa)** is compared separately because it needs logit access
+(`python benchmarks/run_dola.py`, requires `pip install 'veritas-rag[local]'`).
+A real run on gpt2 (`benchmarks/dola.md`): DoLa lifts answer accuracy 0% → 12.5%
+and groundedness 2% → 12% over vanilla greedy decoding on the same model, at ~2×
+latency — the expected *direction* (DoLa's full effect needs a larger
+instruction-tuned model on a factuality benchmark; gpt2 is a wiring check).
+
 ## Quickstart
 
 ```python
@@ -100,9 +145,14 @@ Deploy your own Space: `python scripts/deploy_space.py --repo <user>/veritas-dem
 
 ```
 src/veritas/          the pipeline (chunking, retrieval, llm adapters, prompts,
-                      claims, verification, pipeline, metrics)
-tests/                62 offline tests — pytest
-benchmarks/           corpus + 40-question dataset + runner + committed results
+                      claims, verification, pipeline, metrics, graph)
+src/veritas/techniques/
+                      the technique zoo behind one interface: semantic_entropy,
+                      quote_grounding, multi_agent, guardrails, calibration,
+                      graph_rag, decoding (DoLa), nli, wrappers
+tests/                95 offline tests — pytest
+benchmarks/           corpus + 40-question dataset + runners (run_benchmark,
+                      run_comparison, run_dola) + committed results
 skills/hallucination-reduction/SKILL.md
                       reusable playbook: prompting, chain-of-verification,
                       temperature settings, RAG design for ANY LLM
@@ -125,7 +175,7 @@ hallucination-sensitive LLM features.
 
 ```bash
 pip install -e ".[dev]"
-pytest        # 62 tests, all offline, < 1s
+pytest        # 95 tests; add [local] (torch+transformers) to run the DoLa test
 ```
 
 ## License

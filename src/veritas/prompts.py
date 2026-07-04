@@ -118,6 +118,74 @@ CLAIM: {claim}
 ANALYSIS:"""
 
 
+def quote_extraction_prompt(question: str, retrieved: Sequence[ScoredChunk]) -> str:
+    """Long-context quote grounding: pull verbatim quotes before synthesizing."""
+    return f"""TASK: EXTRACT_QUOTES
+
+Before answering, extract the exact, word-for-word quotes from the evidence
+that are relevant to the question. Copy them verbatim — do not paraphrase,
+summarize, or invent. One quote per line, prefixed "QUOTE:" and ending with
+its chunk citation. If no evidence is relevant, output "QUOTE: NONE".
+
+EVIDENCE:
+{format_evidence(retrieved)}
+
+QUESTION: {question}
+
+QUOTES:"""
+
+
+def synthesize_from_quotes_prompt(question: str, quotes: str) -> str:
+    return f"""TASK: SYNTHESIZE_FROM_QUOTES
+
+Answer the question using ONLY the verbatim quotes below. Every sentence must
+cite the quote's chunk. Do not add anything not present in the quotes. If the
+quotes do not answer the question, reply exactly: "{ABSTAIN_TEXT}"
+
+QUOTES:
+{quotes}
+
+QUESTION: {question}
+
+ANSWER:"""
+
+
+def answer_with_confidence_prompt(question: str, retrieved: Sequence[ScoredChunk]) -> str:
+    """Grounded answer plus a self-reported confidence, for calibration eval."""
+    return f"""TASK: ANSWER_WITH_CONFIDENCE
+
+Answer the question using ONLY the evidence. Cite every sentence. Then, on the
+final line, report your confidence that the answer is fully supported by the
+evidence, as "CONFIDENCE: <number between 0 and 1>". Be honest: report low
+confidence when the evidence is thin. If the evidence does not answer the
+question, reply "{ABSTAIN_TEXT}" and "CONFIDENCE: 0.1".
+
+EVIDENCE:
+{format_evidence(retrieved)}
+
+QUESTION: {question}
+
+ANSWER:"""
+
+
+def editor_prompt(question: str, draft: str, retrieved: Sequence[ScoredChunk]) -> str:
+    """Multi-agent editor pass: tighten the researcher's draft, no new facts."""
+    return f"""TASK: EDIT_DRAFT
+
+You are an editor. Improve the draft for clarity and concision WITHOUT adding
+any fact not present in the evidence and WITHOUT removing citations. Return
+only the edited answer.
+
+EVIDENCE:
+{format_evidence(retrieved)}
+
+QUESTION: {question}
+
+DRAFT: {draft}
+
+EDITED:"""
+
+
 def repair_prompt(claim: str, evidence_text: str) -> str:
     return f"""TASK: REPAIR_CLAIM
 

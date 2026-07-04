@@ -1,0 +1,154 @@
+{
+  "config": {
+    "provider": "mock",
+    "model": null,
+    "hallucination_rate": 0.35,
+    "seed": 13
+  },
+  "results": {
+    "Baseline RAG": {
+      "family": "baseline",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.725,
+        "unsupported_claim_rate": 0.3382352941176471,
+        "mean_groundedness": 0.55,
+        "abstention_recall": 0.0,
+        "false_abstention_rate": 0.0,
+        "answer_accuracy": 0.8,
+        "answer_coverage": 1.0,
+        "mean_latency_s": 0.0005333191500199064,
+        "cal_n_with_confidence": 0.0,
+        "cal_ece": null,
+        "cal_auroc": null,
+        "cal_aurc": null
+      }
+    },
+    "VERITAS": {
+      "family": "verify",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.175,
+        "unsupported_claim_rate": 0.0,
+        "mean_groundedness": 1.0,
+        "abstention_recall": 0.65,
+        "false_abstention_rate": 0.0,
+        "answer_accuracy": 0.9,
+        "answer_coverage": 1.0,
+        "mean_latency_s": 0.0006443217000196455,
+        "cal_n_with_confidence": 40.0,
+        "cal_ece": 0.3538260249936084,
+        "cal_auroc": 0.5340501792114696,
+        "cal_aurc": 0.15443759923666
+      }
+    },
+    "Semantic Entropy": {
+      "family": "uncertainty",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.125,
+        "unsupported_claim_rate": 0.0,
+        "mean_groundedness": 1.0,
+        "abstention_recall": 0.75,
+        "false_abstention_rate": 0.5,
+        "answer_accuracy": 0.9,
+        "answer_coverage": 0.5,
+        "mean_latency_s": 0.0012968248250217584,
+        "cal_n_with_confidence": 40.0,
+        "cal_ece": 0.37672109585816055,
+        "cal_auroc": 0.3541666666666667,
+        "cal_aurc": 0.4013079029735918
+      }
+    },
+    "Quote Grounding": {
+      "family": "verify",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.175,
+        "unsupported_claim_rate": 0.0,
+        "mean_groundedness": 1.0,
+        "abstention_recall": 0.65,
+        "false_abstention_rate": 0.0,
+        "answer_accuracy": 0.9,
+        "answer_coverage": 1.0,
+        "mean_latency_s": 0.0005552550999482264,
+        "cal_n_with_confidence": 0.0,
+        "cal_ece": null,
+        "cal_auroc": null,
+        "cal_aurc": null
+      }
+    },
+    "Multi-Agent Consensus": {
+      "family": "verify",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.175,
+        "unsupported_claim_rate": 0.0,
+        "mean_groundedness": 1.0,
+        "abstention_recall": 0.65,
+        "false_abstention_rate": 0.0,
+        "answer_accuracy": 0.8,
+        "answer_coverage": 1.0,
+        "mean_latency_s": 0.0006370227500497094,
+        "cal_n_with_confidence": 0.0,
+        "cal_ece": null,
+        "cal_auroc": null,
+        "cal_aurc": null
+      }
+    },
+    "Neurosymbolic Guardrails": {
+      "family": "guardrail",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.225,
+        "unsupported_claim_rate": 0.0392156862745098,
+        "mean_groundedness": 0.9753086419753088,
+        "abstention_recall": 0.65,
+        "false_abstention_rate": 0.0,
+        "answer_accuracy": 0.9,
+        "answer_coverage": 1.0,
+        "mean_latency_s": 0.0005461651499672371,
+        "cal_n_with_confidence": 40.0,
+        "cal_ece": 0.3907843410436526,
+        "cal_auroc": 0.4608150470219436,
+        "cal_aurc": 0.22969411626284386
+      }
+    },
+    "Calibrated Selective Prediction": {
+      "family": "uncertainty",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.25,
+        "unsupported_claim_rate": 0.09615384615384616,
+        "mean_groundedness": 0.9074074074074074,
+        "abstention_recall": 0.65,
+        "false_abstention_rate": 0.0,
+        "answer_accuracy": 0.9,
+        "answer_coverage": 1.0,
+        "mean_latency_s": 0.0006378820999884738,
+        "cal_n_with_confidence": 40.0,
+        "cal_ece": 0.5217499999999999,
+        "cal_auroc": 0.2663690476190476,
+        "cal_aurc": 0.4468408747141255
+      }
+    },
+    "Graph-RAG": {
+      "family": "graph",
+      "metrics": {
+        "questions": 40.0,
+        "hallucination_rate": 0.25,
+        "unsupported_claim_rate": 0.09090909090909091,
+        "mean_groundedness": 0.8715277777777777,
+        "abstention_recall": 0.7,
+        "false_abstention_rate": 0.1,
+        "answer_accuracy": 0.8333333333333334,
+        "answer_coverage": 0.9,
+        "mean_latency_s": 0.00026310230001627135,
+        "cal_n_with_confidence": 40.0,
+        "cal_ece": 0.42940079365079376,
+        "cal_auroc": 0.436,
+        "cal_aurc": 0.40525803650150005
+      }
+    }
+  }
+}

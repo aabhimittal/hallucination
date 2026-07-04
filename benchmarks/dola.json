@@ -1,0 +1,24 @@
+{
+  "Vanilla decoding (local)": {
+    "questions": 8.0,
+    "hallucination_rate": 1.0,
+    "unsupported_claim_rate": 0.95,
+    "mean_groundedness": 0.020833333333333332,
+    "abstention_recall": null,
+    "false_abstention_rate": 0.0,
+    "answer_accuracy": 0.0,
+    "answer_coverage": 1.0,
+    "mean_latency_s": 1.8201431104999983
+  },
+  "DoLa (local)": {
+    "questions": 8.0,
+    "hallucination_rate": 1.0,
+    "unsupported_claim_rate": 0.8157894736842105,
+    "mean_groundedness": 0.12083333333333333,
+    "abstention_recall": null,
+    "false_abstention_rate": 0.0,
+    "answer_accuracy": 0.125,
+    "answer_coverage": 1.0,
+    "mean_latency_s": 3.6371743860000265
+  }
+}
