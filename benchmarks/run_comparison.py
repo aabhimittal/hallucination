@@ -83,6 +83,12 @@ def main():
     p.add_argument("--model", default=None)
     p.add_argument("--hallucination-rate", type=float, default=0.35)
     p.add_argument("--seed", type=int, default=13)
+    p.add_argument("--limit", type=int, default=None,
+                   help="run only the first N questions (for quick/live runs)")
+    p.add_argument("--balanced", type=int, default=None,
+                   help="run first N of each question type (answerable/unanswerable/adversarial)")
+    p.add_argument("--out", default="comparison",
+                   help="output basename under benchmarks/ (e.g. 'comparison_live')")
     args = p.parse_args()
 
     docs = load_documents_from_dir(HERE / "corpus")
@@ -91,6 +97,14 @@ def main():
     graph_retriever = GraphRetriever(chunks)
     dataset = json.loads((HERE / "dataset.json").read_text())
     questions = dataset["questions"]
+    if args.balanced:
+        # first N of each type — keeps a live run fast while covering all metrics
+        picked = []
+        for qtype in ("answerable", "unanswerable", "adversarial"):
+            picked += [q for q in questions if q["type"] == qtype][: args.balanced]
+        questions = picked
+    elif args.limit:
+        questions = questions[: args.limit]
 
     llm = build_llm(args)
     techniques = build_registry(llm, retriever)
@@ -162,11 +176,11 @@ def main():
         "",
     ]
     md = "\n".join(lines)
-    (HERE / "comparison.md").write_text(md)
-    (HERE / "comparison.json").write_text(json.dumps(
+    (HERE / f"{args.out}.md").write_text(md)
+    (HERE / f"{args.out}.json").write_text(json.dumps(
         {"config": vars(args), "results": results}, indent=2))
     print("\n" + md)
-    print(f"Wrote {HERE / 'comparison.md'} and {HERE / 'comparison.json'}")
+    print(f"Wrote {HERE / (args.out + '.md')} and {HERE / (args.out + '.json')}")
 
 
 if __name__ == "__main__":

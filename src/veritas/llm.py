@@ -128,8 +128,10 @@ class HFInferenceClient:
         model: str = "meta-llama/Llama-3.1-8B-Instruct",
         token: Optional[str] = None,
         client=None,
+        max_retries: int = 4,
     ):
         self.model = model
+        self.max_retries = max_retries
         if client is not None:
             self._client = client
         else:  # pragma: no cover - exercised only with a live token
@@ -142,17 +144,31 @@ class HFInferenceClient:
             self._client = InferenceClient(model=model, token=token)
 
     def complete(self, prompt, system=None, temperature=0.0, max_tokens=512):
+        import time as _time
+
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
-        response = self._client.chat_completion(
-            messages=messages,
-            # the HF endpoint rejects temperature == 0 for some backends
-            temperature=max(temperature, 0.01),
-            max_tokens=max_tokens,
-        )
-        return (response.choices[0].message.content or "").strip()
+        last_exc = None
+        for attempt in range(self.max_retries):
+            try:
+                response = self._client.chat_completion(
+                    messages=messages,
+                    # the HF endpoint rejects temperature == 0 for some backends
+                    temperature=max(temperature, 0.01),
+                    max_tokens=max_tokens,
+                )
+                return (response.choices[0].message.content or "").strip()
+            except Exception as exc:  # rate limits / transient 5xx on free tier
+                last_exc = exc
+                status = getattr(getattr(exc, "response", None), "status_code", None)
+                # don't retry auth/credit/bad-request errors (401/402/403/404/400)
+                # — only rate limits (429) and server/transient errors are worth it
+                if status in (400, 401, 402, 403, 404):
+                    raise
+                _time.sleep(min(2 ** attempt, 15))
+        raise last_exc
 
 
 # --------------------------------------------------------------------------
